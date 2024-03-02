@@ -22,16 +22,16 @@ struct Args {
     /// Path to true type font file
     font_file: PathBuf,
 
-    /// Pixel width of glyphs
+    /// Pixels per Em unit of font (square glyphs will typically have this for their width and height)
     font_width: f32,
 
-    /// Texture width
+    /// Width of exported textures
     texture_width: u32,
 
-    /// Texture height
+    /// Height of exported textures
     texture_height: u32,
 
-    /// Directort to output font bitmaps and meta json file into
+    /// Directory to output font bitmaps and meta json file into
     #[arg(short, long, default_value = "output")]
     output_directory: PathBuf,
 }
