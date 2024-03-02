@@ -2,10 +2,11 @@ use std::{
     collections::{BTreeMap, HashMap},
     fs,
     io::Write,
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Context, Result};
+use clap::Parser;
 use fontdue::Font;
 use image::{imageops, GrayImage, ImageFormat};
 use rectangle_pack::{
@@ -14,13 +15,36 @@ use rectangle_pack::{
 };
 use serde::Serialize;
 
+/// Convert a TrueType font into a bitmap font.
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to true type font file
+    font_file: PathBuf,
+
+    /// Pixel width of glyphs
+    font_width: f32,
+
+    /// Texture width
+    texture_width: u32,
+
+    /// Texture height
+    texture_height: u32,
+
+    /// Directort to output font bitmaps and meta json file into
+    #[arg(short, long, default_value = "output")]
+    output_directory: PathBuf,
+}
+
 fn main() {
+    let arguments = Args::parse();
+
     load_font(
-        Path::new("testing/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf"),
-        Path::new("testing/output"),
-        64.0,
-        2048,
-        2048,
+        &arguments.font_file,
+        &arguments.output_directory,
+        arguments.font_width,
+        arguments.texture_width,
+        arguments.texture_height,
     )
     .unwrap();
 }
@@ -84,7 +108,7 @@ fn load_font(
 
     println!("Packing glyphs...");
     let mut target_bins = BTreeMap::new();
-    target_bins.insert(0, TargetBin::new(2048, 2048, u32::MAX));
+    target_bins.insert(0, TargetBin::new(layer_width, layer_height, u32::MAX));
 
     let rectangle_placements = pack_rects(
         &rects_to_place,
